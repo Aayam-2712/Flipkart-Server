@@ -98,9 +98,9 @@ app.get("/Mobiles", function(req,res) {
     if (price) {
         let priceSignIndex = price.indexOf("-");
         let priceArr = price.split(',');
-        // console.log("priceArr :",priceArr);
+        console.log("priceArr :",priceArr);
         arr1 = arr1.filter((e) => priceArr.find((g) => g == 20000 ? g <= e.price : g.substring(0,priceSignIndex) <= e.price && g.substring(priceSignIndex+1) >= e.price));
-        // console.log("arr1 :",arr1);
+        console.log("arr1 :",arr1.length);
     }
 
     if(assured === "true") arr1 = arr1.filter((c1) => c1.assured ? c1.assured : "");
@@ -120,10 +120,17 @@ app.get("/Mobiles", function(req,res) {
         ? arr1.filter((tr,index) => index >= startIndex && index <= endIndex) 
         : arr1;
     
+    // console.log("startIndex :",startIndex);
+    // console.log("endIndex :",endIndex);
+    console.log("total :",arr1.length);
+
     let total = Math.floor(arr1.length/10) + 1;
     let json = {
         array: finalArr,
-        totalpage: total
+        totalpage: total,
+        start: startIndex,
+        end: endIndex,
+        totalLength: arr1.length
     }
 
     res.send(json);
@@ -169,33 +176,6 @@ app.post("/compare", function(req,res) {
     // console.log("data :",data);
     // console.log("compare :",compare);
 });
-
-
-
-
-
-
-
-
-
-
-
-// app.put("/cart", function (req, res) {
-//     console.log("put");
-//     let obj = req.body;
-//     // console.log(id);
-//     // console.log(obj);
-//     let index1 = cart.findIndex((obj1) => obj1.id === obj.id);
-//     if(obj.count === 1) cart.splice(index1,1);
-//     if (index1 !== -1) {
-//         cart[index1] = obj;
-//         res.send(obj);
-//         console.log(cart[index1].count);
-//     } else {
-//         res.send("Not Found");
-//     }
-//     console.log("cart :",cart);
-// });
 
 
 
