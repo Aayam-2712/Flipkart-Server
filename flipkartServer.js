@@ -56,38 +56,77 @@ app.get("/deals", function(req,res) {
 app.get("/Mobiles/:prodId", function(req,res) {
     let prodId = req.params.prodId;
     let find = mobilesData.find((mb) => mb.id === prodId);
-    console.log("Find :",find);
+    // console.log("Find :",find);
     if (find) res.send(find);
     else res.send("No Mobile Found");
 });
 
+
+
 app.get("/Mobiles", function(req,res) {
-    console.log("In Get /Mobiles", req.query);
-    let assured = req.query.assured;
-    // console.log("assured :",assured);
+    // console.log("In Get /Mobiles", req.query);
+    let brand = req.query.brand;
     let ram = req.query.ram;
-    let rating = +req.query.rating;
+    let rating = req.query.rating;
     let price = req.query.price;
-    let sortBy = req.query.sortBy;
-    let page = req.query.page;
+    let assured = req.query.assured;
+    let pageCount = req.query.page ? req.query.page : 1;
+    // console.log("Page Count : ",pageCount);
     let arr1 = mobilesData;
+
+    if (brand) {
+        let brandArr = brand.split(',');
+        // console.log("brandArr :",brandArr);
+        arr1 = arr1.filter((e) => brandArr.find((g) => g == e.brand));
+        // console.log("arr1 :",arr1);
+    }
+
+    if (ram) {
+        let ramArr = ram.split(',');
+        // console.log("ramArr :",ramArr);
+        arr1 = arr1.filter(e => ramArr.find(g => g == 6 ? g <= e.ram : g == e.ram));
+        // console.log("arr1 :",arr1);
+    }
+
+    if (rating) {
+        let ratingArr = rating.split(',');
+        // console.log("ratingArr :",ratingArr);
+        arr1 = arr1.filter(e => ratingArr.find(g => g <= e.rating));
+        // console.log("arr1 :",arr1);
+    }
+
+    if (price) {
+        let priceSignIndex = price.indexOf("-");
+        let priceArr = price.split(',');
+        // console.log("priceArr :",priceArr);
+        arr1 = arr1.filter((e) => priceArr.find((g) => g == 20000 ? g <= e.price : g.substring(0,priceSignIndex) <= e.price && g.substring(priceSignIndex+1) >= e.price));
+        // console.log("arr1 :",arr1);
+    }
+
     if(assured === "true") arr1 = arr1.filter((c1) => c1.assured ? c1.assured : "");
     if(assured === "false") arr1 = arr1.filter((c1) => !c1.assured ? !c1.assured : "");
-    if(ram) arr1 = arr1.filter((pd) => pd.ram === ram);
-    if(rating) arr1 = arr1.filter((c1) => c1.rating > rating);
-    if(price) {
-        let priceSignIndex = price.indexOf("-");
-        let price1 = +price.substring(0,priceSignIndex);
-        let price2 = +price.substring(priceSignIndex+1);
-        arr1 = arr1.filter((c1) => c1.price > price1 && c1.price <= price2 );
+
+
+    let page = +pageCount;
+    let size = 10;
+
+    let startIndex = (page - 1) * size;
+    let endIndex = 
+    arr1.length > startIndex + size - 1
+            ? startIndex + size -1
+            : arr1.length - 1;
+
+    let finalArr = arr1.length>size 
+        ? arr1.filter((tr,index) => index >= startIndex && index <= endIndex) 
+        : arr1;
+    
+    let total = Math.floor(arr1.length/10) + 1;
+    let json = {
+        array: finalArr,
+        totalpage: total
     }
-    if(sortBy) {
-        if(sortBy === "asc") arr1.sort((c1,c2) => c1.price-c2.price);
-        else if(sortBy === "desc") arr1.sort((c1,c2) => c2.price-c1.price);
-        else if(sortBy === "popularity") arr1.sort((c1,c2) => c1.popularity-c2.popularity);
-        else arr1 = "Enter Valid Value";
-    }
-    res.send(arr1);
+
+    res.send(json);
 });
 
 
@@ -98,37 +137,37 @@ app.get("/showWishlist",function(req,res) {
 
 app.post("/addWishlist",function(req,res) {
 let data = req.body;
-console.log("Data :",data);
+// console.log("Data :",data);
 wishlist = data;
 // wishlist.push(data);
 })
 
 
 app.get("/cart", function(req,res) {
-    console.log("get");
+    // console.log("get");
     res.send(cart);
 });
 
 app.post("/cart", function(req,res) {
-    console.log("post");
+    // console.log("post");
     let data = req.body;
     cart = data;
-    console.log("data :",data);
-    console.log("cart :",cart);
+    // console.log("data :",data);
+    // console.log("cart :",cart);
 });
 
 
 app.get("/compare", function(req,res) {
-    console.log("get");
+    // console.log("get");
     res.send(compare);
 });
 
 app.post("/compare", function(req,res) {
-    console.log("post");
+    // console.log("post");
     let data = req.body;
     compare = data;
-    console.log("data :",data);
-    console.log("compare :",compare);
+    // console.log("data :",data);
+    // console.log("compare :",compare);
 });
 
 
@@ -168,9 +207,9 @@ app.get("/pincodes", function(req,res) {
 
 app.post("/addCustomer", function(req,res) {
     let obj = req.body;
-    console.log("Obj :",obj)
+    // console.log("Obj :",obj)
     let find = users.find((u1) => u1.username === obj.username);
-    console.log("Find :",find);
+    // console.log("Find :",find);
     if(find === undefined) {
         users.push(obj);
         res.send(users); 
@@ -183,17 +222,17 @@ app.post("/addCustomer", function(req,res) {
 
 
 app.post("/login", function (req, res) {
-    console.log("LOgin");
-    console.log("body : ",req.body);
+    // console.log("LOgin");
+    // console.log("body : ",req.body);
     let user = users.find((u1) => (u1.email === req.body.email || u1.phone === req.body.email) && u1.password === req.body.password);
-    console.log(user);
+    // console.log(user);
     let resObj = null;
     if (user != undefined) {
         resObj = {
             // id: user.id,
             firstname: user.firstname,
         };
-        console.log("resobj :",resObj);
+        // console.log("resobj :",resObj);
         res.status(200).send(resObj);
     } 
     else res.status(500).send("Login Unsuccessful");
