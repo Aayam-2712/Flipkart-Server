@@ -27,6 +27,14 @@ let wishlist = [];
 let compare = [];
 let users = [
     {
+        firstname: 'Admin',
+        lastname: '',
+        username: 'admin1234',
+        email: 'admin@gmail.com',
+        password: '123456',
+        phone: '123456789'
+    },
+    {
         firstname: 'Aayam',
         lastname: 'Saxena',
         username: 'aayam2712',
@@ -35,33 +43,12 @@ let users = [
         phone: '9917582574'
     }
 ];
-// console.log("dealsMobile before :", dealsMobile);
+
+
 for(i=0; i<=100; i++) {
     let randomNum = Math.floor((Math.random() * 46) + 1);
-    // console.log("randomNum :", randomNum);
     dealsMobile.includes(randomNum) ? "" : dealsMobile.length > 13 ? "" : dealsMobile.push(randomNum);
 }
-// console.log("dealsMobile :", dealsMobile);
-
-app.get("/reviews", function(req,res) {
-    res.send(reviewsData);
-});
-
-app.get("/deals", function(req,res) {
-    let array = mobilesData.filter((mb,index) => dealsMobile.find((dm) => index === dm ? mb : "" ));  
-    // console.log("Array :", array);
-    res.send(array)
-});
-
-app.get("/Mobiles/:prodId", function(req,res) {
-    let prodId = req.params.prodId;
-    let find = mobilesData.find((mb) => mb.id === prodId);
-    // console.log("Find :",find);
-    if (find) res.send(find);
-    else res.send("No Mobile Found");
-});
-
-
 
 app.get("/Mobiles", function(req,res) {
     // console.log("In Get /Mobiles", req.query);
@@ -122,7 +109,7 @@ app.get("/Mobiles", function(req,res) {
     
     // console.log("startIndex :",startIndex);
     // console.log("endIndex :",endIndex);
-    console.log("total :",arr1.length);
+    // console.log("total :",arr1.length);
 
     let total = Math.floor(arr1.length/10) + 1;
     let json = {
@@ -135,6 +122,53 @@ app.get("/Mobiles", function(req,res) {
 
     res.send(json);
 });
+
+app.get("/Mobiles/:id", function(req,res) {
+    let id = req.params.id;
+    let find = mobilesData.find((mb) => mb.id === id);
+    // console.log("Find :",find);
+    if (find) res.send(find);
+    else res.send("No Mobile Found");
+});
+
+app.post("/Mobiles/add", function (req, res) {
+    let body = req.body;
+    // console.log("bodyPost product add: ",body);
+    let find = mobilesData.find((m1) => m1.id == body.id);
+    // console.log("Find : ", find)
+    if (find) {
+        res.status(400).send("Id Already Exist");
+    } else {
+        mobilesData.push(body);
+        res.send(body);
+    }
+});
+
+app.put("/Mobiles/:id", function (req, res) {
+    let id = req.params.id;
+    let body = req.body;
+    // console.log("Putid",id);
+    // console.log("Putbody",body);
+    let index = mobilesData.findIndex((m1) => m1.id === id);
+    if (index >= 0) {
+        mobilesData[index] = body;
+        res.send(body);
+    } else {
+        res.send("Not Found");
+    }
+});
+
+app.delete("/Mobiles/:id", function (req, res) {
+    let id = req.params.id;
+    let index = mobilesData.findIndex((m1) => m1.id === id);
+    if (index >= 0) {
+        mobilesData.splice(index,1);
+        res.send("Successfully deleted.");
+    } else {
+        res.send("Not Found");
+    }
+});
+
 
 
  
@@ -150,6 +184,8 @@ wishlist = data;
 })
 
 
+
+
 app.get("/cart", function(req,res) {
     // console.log("get");
     res.send(cart);
@@ -162,6 +198,8 @@ app.post("/cart", function(req,res) {
     // console.log("data :",data);
     // console.log("cart :",cart);
 });
+
+
 
 
 app.get("/compare", function(req,res) {
@@ -179,9 +217,20 @@ app.post("/compare", function(req,res) {
 
 
 
+
 app.get("/pincodes", function(req,res) {
     res.send(pincodesData);
 });
+
+app.get("/reviews", function(req,res) {
+    res.send(reviewsData);
+});
+
+app.get("/deals", function(req,res) {
+    let array = mobilesData.filter((mb,index) => dealsMobile.find((dm) => index === dm ? mb : "" ));
+    res.send(array)
+});
+
 
 
 
@@ -198,8 +247,6 @@ app.post("/addCustomer", function(req,res) {
         res.send("User Already Present");
     }
 });
-
-
 
 app.post("/login", function (req, res) {
     // console.log("LOgin");
